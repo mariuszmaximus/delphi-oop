@@ -1245,6 +1245,7 @@ begin
       end;
     end;
 
+    ACreated := True;
     Result := True;
   end;
 end;

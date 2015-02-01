@@ -428,6 +428,7 @@ type
     procedure TearDown; override;
   published
     procedure DeserializeFromXMLString();
+    procedure DeserializeFromXMLString_CDATA();
   end;
 
 implementation
@@ -609,6 +610,7 @@ begin
     LDummy.DummyRec := LRecord;
 
     LBean.Dummies.Add(LDummy);
+    LBean.Dummies.Add(TDummy.Create);
     TSvSerializer.SerializeObject(LBean, LOutput, Serializer.SerializeFormat);
 
     CheckTrue(Pos('DummyValue', LOutput) > 0);
@@ -1191,7 +1193,7 @@ begin
     //variant property
     CheckTrue(TestObj.Value = PROP_DOUBLE);
     //array property
-    CheckTrue(Length(TestObj.Mas) = COUNT_ARRAY);
+    CheckEquals(COUNT_ARRAY, Length(TestObj.Mas));
     CheckEqualsString('1', TestObj.Mas[0]);
     CheckEqualsString('2', TestObj.Mas[1]);
     CheckEqualsString('3', TestObj.Mas[2]);
@@ -1652,6 +1654,121 @@ begin
   end;
 end;
 
+type
+  TCategoryName = class
+  private
+    Flanguage: string;
+  public
+    destructor Destroy; override;
+    property language: string read Flanguage write Flanguage;
+  end;
+
+  TCategory = class
+  private
+    FId: String;
+    FActive: string;
+    Fdate_add: string;
+    Fdate_upd: string;
+    Fname: TList<string>;
+  public
+    constructor Create; virtual;
+    destructor Destroy; override;
+
+
+    property ID: String read FId write FId;
+    property Active: string read FActive write FActive;
+    property date_add: string read Fdate_add write Fdate_add;
+    property date_upd: string read Fdate_upd write Fdate_upd;
+    property name: TList<string> read Fname write Fname;
+  end;
+
+  TPrestashop = class
+  private
+    Fcategory: TCategory;
+  public
+    destructor Destroy; override;
+
+
+    property category: TCategory read Fcategory write Fcategory;
+  end;
+
+    { TPrestashop }
+
+  destructor TPrestashop.Destroy;
+  begin
+    Fcategory.Free;
+    inherited;
+  end;
+
+  { TCategoryName }
+  destructor TCategoryName.Destroy;
+  begin
+    inherited;
+  end;
+
+
+{ TCategory }
+
+constructor TCategory.Create;
+begin
+  Fname := TList<string>.Create();
+end;
+
+destructor TCategory.Destroy;
+begin
+  Fname.Free;
+  inherited;
+end;
+
+
+procedure TestTSvNativeXMLSerializer.DeserializeFromXMLString_CDATA;
+const
+  XML_CDATA = '<?xml version="1.0" encoding="UTF-8"?>  '+ #13#10 +
+    '<prestashop xmlns:xlink="http://www.w3.org/1999/xlink">' + #13#10 +
+    '<category>' + #13#10 +
+        '<id><![CDATA[26]]></id>' + #13#10 +
+        '<active><![CDATA[0]]></active>' + #13#10 +
+        '<date_add><![CDATA[2013-11-17 03:41:09]]></date_add>' + #13#10 +
+        '<date_upd><![CDATA[2013-11-17 03:41:09]]></date_upd>' + #13#10 +
+        '<name>' + #13#10 +
+              '<language id="2" xlink:href="http://my.domain.com/prestashop/1.6/api/languages/2">' + #13#10 +
+                    '<![CDATA[Llibres]]>' + #13#10 +
+              '</language>' + #13#10 +
+              '' + #13#10 +
+              '<language id="6" xlink:href="http://my.domain.com/prestashop/1.6/api/languages/6">' + #13#10 +
+                    '<![CDATA[Llibres]]>' + #13#10 +
+              '</language>' + #13#10 +
+              '' + #13#10 +
+              '<language id="8" xlink:href="http://my.domain.com/prestashop/1.6/api/languages/8">' + #13#10 +
+                    '<![CDATA[Llibres]]>' + #13#10 +
+              '</language>' + #13#10 +
+              '' + #13#10 +
+              '<language id="9" xlink:href="http://my.domain.com/prestashop/1.6/api/languages/9">' + #13#10 +
+                    '<![CDATA[Llibres]]>' + #13#10 +
+              '</language>' + #13#10 +
+        '</name>' + #13#10 +
+        '</category>' + #13#10 +
+        '</prestashop>';
+var
+  prestashop: TPrestashop;
+  languageStrings: TStrings;
+begin
+  prestashop := TPrestashop.Create;
+  TSvSerializer.DeSerializeObject(prestashop, XML_CDATA, sstNativeXML);
+  CheckEquals('0', prestashop.category.FActive);
+  CheckEquals('id=2,xlink:href=http://my.domain.com/prestashop/1.6/api/languages/2,Llibres'
+    , prestashop.category.name.First);
+
+  languageStrings := TStringList.Create;
+  languageStrings.DelimitedText := prestashop.category.name.First;
+  CheckEquals('2', languageStrings.Values['id']);
+  CheckEquals('http://my.domain.com/prestashop/1.6/api/languages/2', languageStrings.Values['xlink:href']);
+  CheckEquals('Llibres', languageStrings[languageStrings.Count-1]);
+
+  languageStrings.Free;
+  prestashop.Free;
+end;
+
 procedure TestTSvNativeXMLSerializer.SetUp;
 begin
   SerializerType := sstNativeXML;
@@ -1808,6 +1925,10 @@ function TTestObjectList<T>.GetValue(AIndex: Integer): T;
 begin
   Result := FList[AIndex];
 end;
+
+
+
+
 
 initialization
   // Register any test cases with the test runner

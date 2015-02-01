@@ -32,7 +32,9 @@ interface
 uses
   Classes, SvSerializer, SysUtils, NativeXml, Rtti, SvSerializerAbstract;
 
-type
+const TYPE_ATTRIBUTE_NAME = '_svtype';
+  
+type     
   TSvXMLNode = class(TsdElement)
 
   end;
@@ -93,6 +95,7 @@ uses
   SvSerializerFactory
   ;
 
+ 
 { TSvNativeXMLSerializer }
 
 procedure TSvNativeXMLSerializer.ArrayAdd(AArray: TXMLNode; const AValue: TXMLNode);
@@ -128,35 +131,35 @@ end;
 function TSvNativeXMLSerializer.CreateArray: TXMLNode;
 begin
   Result := TSvXMLNode.Create(FXML);
-  Result.AttributeAdd('type', 'array');
+  Result.AttributeAdd(TYPE_ATTRIBUTE_NAME, 'array');
 end;
 
 function TSvNativeXMLSerializer.CreateBoolean(AValue: Boolean): TXMLNode;
 begin
   Result := TSvXMLNode.Create(FXML);
   Result.ValueAsBool := AValue;
-  Result.AttributeAdd('type', 'boolean');
+  Result.AttributeAdd(TYPE_ATTRIBUTE_NAME, 'boolean');
 end;
 
 function TSvNativeXMLSerializer.CreateDouble(AValue: Double): TXMLNode;
 begin
   Result := TSvXMLNode.Create(FXML);
   Result.ValueUnicode := FloatToStr(AValue, FFormatSettings);
-  Result.AttributeAdd('type', 'number');
+  Result.AttributeAdd(TYPE_ATTRIBUTE_NAME, 'number');
 end;
 
 function TSvNativeXMLSerializer.CreateInt64(AValue: Int64): TXMLNode;
 begin
   Result := TSvXMLNode.Create(FXML);
   Result.ValueAsInt64 := AValue;
-  Result.AttributeAdd('type', 'number');
+  Result.AttributeAdd(TYPE_ATTRIBUTE_NAME, 'number');
 end;
 
 function TSvNativeXMLSerializer.CreateInteger(AValue: Integer): TXMLNode;
 begin
   Result := TSvXMLNode.Create(FXML);
   Result.ValueAsInteger := AValue;
-  Result.AttributeAdd('type', 'number');
+  Result.AttributeAdd(TYPE_ATTRIBUTE_NAME, 'number');
 end;
 
 function TSvNativeXMLSerializer.CreateNull: TXMLNode;
@@ -186,7 +189,7 @@ function TSvNativeXMLSerializer.CreateString(const AValue: string): TXMLNode;
 begin
   Result := TSvXMLNode.Create(FXML);
   Result.ValueUnicode := AValue;
-  Result.AttributeAdd('type', 'string');
+  Result.AttributeAdd(TYPE_ATTRIBUTE_NAME, 'string');
 end;
 
 destructor TSvNativeXMLSerializer.Destroy;
@@ -240,8 +243,33 @@ begin
 end;
 
 function TSvNativeXMLSerializer.GetAsString(AValue: TXMLNode): string;
+var
+  strings: TStrings;
+  i: Integer;
+  attribName: string;
 begin
-  Result := AValue.ValueUnicode;
+  if AValue.AttributeCount > 0 then
+  begin
+    strings := TStringList.Create;
+    try
+      strings.StrictDelimiter := True;
+      for i := 0 to AValue.AttributeCount - 1 do
+      begin
+        attribName := AValue.AttributeName[i];
+        if attribName <> TYPE_ATTRIBUTE_NAME then              
+          strings.Values[attribName] := AValue.Attributes[i].ValueUnicode;
+      end;
+      strings.Add(AValue.ValueUnicode);
+      if strings.Count = 1 then
+        Result := strings[0]
+      else
+        Result := strings.DelimitedText;
+    finally
+      strings.Free;
+    end;
+  end
+  else
+    Result := AValue.ValueUnicode;
 end;
 
 function TSvNativeXMLSerializer.GetObjectSize(AValue: TXMLNode): Integer;
@@ -256,7 +284,8 @@ end;
 
 function TSvNativeXMLSerializer.IsArray(AValue: TXMLNode): Boolean;
 begin
-  Result := AValue.AttributeValueByNameWide['type'] = 'array';
+  Result := ((AValue.ContainerCount > 1) and (AValue.Containers[0].NameUnicode = AValue.Containers[1].NameUnicode))
+   or (AValue.AttributeValueByNameWide[TYPE_ATTRIBUTE_NAME] = 'array');
 end;
 
 function TSvNativeXMLSerializer.IsAssigned(AValue: TXMLNode): Boolean;
@@ -266,7 +295,7 @@ end;
 
 function TSvNativeXMLSerializer.IsBoolean(AValue: TXMLNode): Boolean;
 begin
-  Result := AValue.AttributeValueByNameWide['type'] = 'boolean';
+  Result := AValue.AttributeValueByNameWide[TYPE_ATTRIBUTE_NAME] = 'boolean';
 end;
 
 function TSvNativeXMLSerializer.IsNull(AValue: TXMLNode): Boolean;
@@ -276,7 +305,7 @@ end;
 
 function TSvNativeXMLSerializer.IsNumber(AValue: TXMLNode): Boolean;
 begin
-  Result := AValue.AttributeValueByNameWide['type'] = 'number';
+  Result := AValue.AttributeValueByNameWide[TYPE_ATTRIBUTE_NAME] = 'number';
 end;
 
 function TSvNativeXMLSerializer.IsObject(AValue: TXMLNode): Boolean;
@@ -286,7 +315,7 @@ end;
 
 function TSvNativeXMLSerializer.IsString(AValue: TXMLNode): Boolean;
 begin
-  Result := AValue.AttributeValueByNameWide['type'] = 'string';
+  Result := AValue.AttributeValueByNameWide[TYPE_ATTRIBUTE_NAME] = 'string';
 end;
 
 procedure TSvNativeXMLSerializer.ObjectAdd(AObject: TXMLNode; const AName: string; const AValue: TXMLNode);
