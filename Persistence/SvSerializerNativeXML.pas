@@ -255,7 +255,7 @@ begin
       strings.StrictDelimiter := True;
       for i := 0 to AValue.AttributeCount - 1 do
       begin
-        attribName := AValue.AttributeName[i];
+        attribName := AValue.Attributes[i].NameUnicode;
         if attribName <> TYPE_ATTRIBUTE_NAME then              
           strings.Values[attribName] := AValue.Attributes[i].ValueUnicode;
       end;

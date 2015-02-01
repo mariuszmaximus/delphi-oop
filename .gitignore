@@ -11,8 +11,8 @@ __history/
 Win32\*
 Win64\*
 DCU
-Test/Debug/
-Test/Release/
+Debug/
+Release/
 
 # Delphi Compiler output files
 *.dcu
