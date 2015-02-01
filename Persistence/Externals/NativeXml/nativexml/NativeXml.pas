@@ -99,7 +99,7 @@ uses
   ElAES,
 {$endif USEAES}
 
-  Classes, Contnrs, SysUtils,
+  Classes, Contnrs, SysUtils, Types,
 
 {$ifdef D5UP}
   // D5 does not define MSWINDOWS

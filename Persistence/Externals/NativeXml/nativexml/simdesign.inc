@@ -106,11 +106,23 @@
   {$define D15UP}
 {$endif}
 
-// Delphi XE5 / 18
+// Delphi XE5
 {$ifdef VER260}
   {$define D7UP}
   {$define D10UP}
   {$define D15UP}
 {$endif}
 
+// Delphi XE6
+{$ifdef VER270}
+  {$define D7UP}
+  {$define D10UP}
+  {$define D15UP}
+{$endif}
 
+// Delphi XE7
+{$ifdef VER280}
+  {$define D7UP}
+  {$define D10UP}
+  {$define D15UP}
+{$endif}

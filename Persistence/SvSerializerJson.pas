@@ -30,7 +30,9 @@ unit SvSerializerJson;
 interface
 
 uses
-  Classes, SvSerializer, SysUtils, DBXJSON, Rtti, SvSerializerAbstract;
+  Classes, SvSerializer, SysUtils,
+  {$IF CompilerVersion <27} DBXJSON {$ELSE} JSON{$IFEND}
+  , Rtti, SvSerializerAbstract;
 
 type
   TSvJsonString = class(TJSONString)
@@ -217,28 +219,38 @@ begin
     RootObject.Free;
 end;
 
+function GetJsonObjectCount(const AObject: TJSONObject): Integer;
+begin
+  Result := AObject.{$IF CompilerVersion>=27}Count{$ELSE}Size{$IFEND};
+end;
+
+function GetJsonObjectPair(const AObject: TJSONObject; const AIndex: Integer): TJSONPair;
+begin
+  Result := AObject.{$IF CompilerVersion>=27}Pairs[AIndex]{$ELSE}Get(AIndex){$IFEND};
+end;
+
 function TSvJsonSerializer.EnumerateObject(AObject: TJSONValue): TArray<TEnumEntry<TJSONValue>>;
 var
   LJsonObject: TJSONObject;
   i: Integer;
 begin
   LJsonObject := (AObject as TJSONObject);
-  SetLength(Result, LJsonObject.Size);
+  SetLength(Result, GetJsonObjectCount(LJsonObject));
   for i := Low(Result) to High(Result) do
   begin
-    Result[i].Key := LJsonObject.Get(i).JsonString.Value;
-    Result[i].Value := LJsonObject.Get(i).JsonValue;
+    Result[i].Key := GetJsonObjectPair(LJsonObject, i).JsonString.Value;
+    Result[i].Value := GetJsonObjectPair(LJsonObject, i).JsonValue;
   end;
 end;
 
 function TSvJsonSerializer.GetArrayElement(AArray: TJSONValue; AIndex: Integer): TJSONValue;
 begin
-  Result := (AArray as TJSONArray).Get(AIndex);
+  Result := (AArray as TJSONArray).{$IF CompilerVersion >= 27}Items[AIndex]{$ELSE}Get(AIndex){$IFEND};
 end;
 
 function TSvJsonSerializer.GetArraySize(AValue: TJSONValue): Integer;
 begin
-  Result := (AValue as TJSONArray).Size;
+  Result := (AValue as TJSONArray).{$IF CompilerVersion >= 27}Count{$ELSE}Size{$IFEND};
 end;
 
 function TSvJsonSerializer.GetAsBoolean(AValue: TJSONValue): Boolean;
@@ -261,7 +273,7 @@ end;
 
 function TSvJsonSerializer.GetObjectSize(AValue: TJSONValue): Integer;
 begin
-  Result := (AValue as TJSONObject).Size;
+  Result := GetJsonObjectCount(AValue as TJSONObject);
 end;
 
 function TSvJsonSerializer.GetValueByName(const AName: string; AObject: TJSONValue): TJSONValue;

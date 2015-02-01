@@ -573,8 +573,8 @@ begin
   SetString(LUpRight, ARight, MaxLen);
 
   { Upper case them }
-  LUpLeft := Character.ToUpper(LUpLeft);
-  LUpRight := Character.ToUpper(LUpRight);
+  LUpLeft := {$IF CompilerVersion < 25} Character.ToUpper(LUpLeft){$ELSE}LUpLeft.ToUpper{$IFEND};
+  LUpRight := {$IF CompilerVersion < 25} Character.ToUpper(LUpRight){$ELSE}LUpRight.ToUpper{$IFEND};
 
   { And finally we can compare! }
   Result := BinaryCompare(Pointer(LUpLeft), Pointer(LUpRight), MaxLen * SizeOf(WideChar));
@@ -926,7 +926,7 @@ var
 begin
   { Check if each char is whitespace }
   for I := 1 to System.Length(FValue) do
-    if not Character.IsWhiteSpace(FValue, I) then
+    if not {$IF CompilerVersion < 25} Character.IsWhiteSpace(FValue, I){$ELSE}FValue[I].IsWhiteSpace{$IFEND} then
       Exit(false);
 
   { String was either empty or contained whitespaces only }
