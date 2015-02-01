@@ -1756,6 +1756,7 @@ begin
   prestashop := TPrestashop.Create;
   TSvSerializer.DeSerializeObject(prestashop, XML_CDATA, sstNativeXML);
   CheckEquals('0', prestashop.category.FActive);
+  CheckEquals(4, prestashop.category.name.Count);
   CheckEquals('id=2,xlink:href=http://my.domain.com/prestashop/1.6/api/languages/2,Llibres'
     , prestashop.category.name.First);
 

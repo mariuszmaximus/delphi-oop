@@ -8,6 +8,12 @@
 *.tvsconfig
 __history/
 
+Win32\*
+Win64\*
+DCU
+Test/Debug/
+Test/Release/
+
 # Delphi Compiler output files
 *.dcu
 *.drc
