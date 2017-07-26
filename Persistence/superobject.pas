@@ -95,6 +95,9 @@
 
 {$if CompilerVersion > 20}
   {$DEFINE HAVE_RTTI}
+{$ifend}
+
+{$if CompilerVersion > 21}
   {$DEFINE NEED_FORMATSETTINGS}
 {$ifend}
 
