@@ -1,4 +1,4 @@
-#This is a fork of https://bitbucket.org/soundvibe/delphi-oop. The only part of this library that I use is SvSerializer, so, at this moment this fork only deals with changes to that part of this library. I've created this fork so that SvSerializer compiles in Delphi 2010.
+#This is a fork of https://bitbucket.org/soundvibe/delphi-oop. The only part of this library that I use is SvSerializer, so, at this moment this fork only deals with changes to that part of this library. I've created this fork so that SvSerializer compiles in Delphi 2010.#
 
 # Object oriented programming for Delphi >= 2010 #
 
