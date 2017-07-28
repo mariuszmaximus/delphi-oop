@@ -126,3 +126,33 @@
   {$define D10UP}
   {$define D15UP}
 {$endif}
+
+
+// Delphi XE8
+{$ifdef VER290}
+  {$define D7UP}
+  {$define D10UP}
+  {$define D15UP}
+{$endif}
+
+
+// Delphi Seattle  10.0
+{$ifdef VER300}
+  {$define D7UP}
+  {$define D10UP}
+  {$define D15UP}
+{$endif}
+
+// Delphi Berlin   10.1
+{$ifdef VER310}
+  {$define D7UP}
+  {$define D10UP}
+  {$define D15UP}
+{$endif}
+
+// Delphi Tokyo   10.2
+{$ifdef VER320}
+  {$define D7UP}
+  {$define D10UP}
+  {$define D15UP}
+{$endif}
