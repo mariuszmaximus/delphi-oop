@@ -139,6 +139,11 @@ type
     property StringStream: TStringStream read FStringStream;
   end;
 
+{$IFDEF  VER210}
+var
+  FormatSettings: TFormatSettings;
+{$endif}
+
 implementation
 
 uses
@@ -146,6 +151,7 @@ uses
  ,DB
  ,SvSerializerRtti
   ;
+
 
 
 { TSvAbstractNonGenericSerializer }

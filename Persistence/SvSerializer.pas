@@ -525,7 +525,9 @@ begin
   FSerializeFormat := AFormat;
   FObjs := TDictionary<string, TPair<TValue,TStringDynArray>>.Create();
   FErrors := TList<string>.Create();
+  {$IFNDEF  VER210}
   FFmtSettings := TFormatSettings.Create();
+  {$ENDIF}
   FFmtSettings.DecimalSeparator := '.';
   FFmtSettings.ShortDateFormat := 'yyyy-mm-dd';
   FFmtSettings.LongDateFormat := 'yyyy-mm-dd hh:mm:ss';
@@ -675,7 +677,9 @@ end;
 
 function TSvSerializer.GetErrors: TArray<string>;
 begin
+  {$IFNDEF  VER210}
   Result := FErrors.ToArray;
+  {$ENDIF}
 end;
 
 function TSvSerializer.GetErrorsAsString: string;
@@ -707,7 +711,9 @@ begin
   AToString := '';
   ss := TStringStream.Create('', AEncoding);
   try
+    {$IFNDEF  VER210}
     Marshall(AWhat, ss);
+    {$ENDIF}
     AToString := ss.DataString;
   finally
     ss.Free;
